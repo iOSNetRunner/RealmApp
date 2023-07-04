@@ -32,6 +32,7 @@ final class TasksViewController: UITableViewController {
         completedTasks = taskList.tasks.filter("isComplete = true")
     }
     
+    
     // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
         2
@@ -52,7 +53,51 @@ final class TasksViewController: UITableViewController {
         content.text = task.title
         content.secondaryText = task.note
         cell.contentConfiguration = content
+        cell.accessoryType = task.isComplete ? .checkmark : .none
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+        guard let indexPath = indexPath else { return }
+        tableView.cellForRow(at: indexPath)?.accessoryType = indexPath.section == 1
+        ? .checkmark : .none
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let task = indexPath.section == 0 ? currentTasks[indexPath.row] : completedTasks[indexPath.row]
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [unowned self] _, _, _ in
+            storageManager.delete(task)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+        
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { [unowned self] _, _, isDone in
+            showAlert(with: task) {
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+            isDone(true)
+        }
+        
+        let doneAction = UIContextualAction(style: .normal, title: "Done") { [unowned self] _, _, isDone in
+            storageManager.done(task)
+            tableView.moveRow(
+                at: indexPath,
+                to: (IndexPath(row: 0, section: task.isComplete ? 1 : 0)
+                    )
+            )
+            
+            isDone(true)
+        }
+        
+        editAction.backgroundColor = .orange
+        doneAction.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+        doneAction.title = task.isComplete ? "Undone" : "Done"
+        
+        return UISwipeActionsConfiguration(actions: [doneAction, editAction, deleteAction])
     }
     
     @objc private func addButtonPressed() {
@@ -75,7 +120,8 @@ extension TasksViewController {
                    style: .default
                ) { [weak self] taskTitle, taskNote in
                    if let task, let completion {
-                       // TODO: - edit task
+                       self?.storageManager.edit(task, title: taskTitle, note: taskNote)
+                       completion()
                        return
                    }
                    self?.save(task: taskTitle, withNote: taskNote)

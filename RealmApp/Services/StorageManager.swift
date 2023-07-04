@@ -65,6 +65,25 @@ final class StorageManager {
         }
     }
     
+    func edit(_ task: Task, title: String, note: String) {
+        write {
+            task.title = title
+            task.note = note
+        }
+    }
+    
+    func delete(_ task: Task) {
+        write {
+            realm.delete(task)
+        }
+    }
+    
+    func done(_ task: Task) {
+        write {
+            task.isComplete.toggle()
+        }
+    }
+    
     private func write(completion: () -> Void) {
         do {
             try realm.write {
