@@ -58,6 +58,8 @@ final class TasksViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+        super.tableView(tableView, didEndEditingRowAt: indexPath)
+        
         guard let indexPath = indexPath else { return }
         tableView.cellForRow(at: indexPath)?.accessoryType = indexPath.section == 1
         ? .checkmark : .none

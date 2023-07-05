@@ -36,6 +36,8 @@ final class TaskListViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    
+    
     // MARK: - UITableViewDataSource
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         taskLists.count
@@ -70,6 +72,20 @@ final class TaskListViewController: UITableViewController {
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.alpha = 0
+        
+        UIView.animate(
+            withDuration: 0.4,
+            delay: 0.05 * Double(indexPath.row),
+            animations: {
+                cell.alpha = 1
+            }
+        )
+    }
+    
+    
+    
     // MARK: - UITableViewDelegate
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let taskList = taskLists[indexPath.row]
@@ -98,6 +114,8 @@ final class TaskListViewController: UITableViewController {
         return UISwipeActionsConfiguration(actions: [doneAction, editAction, deleteAction])
     }
     
+    
+    
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard let indexPath = tableView.indexPathForSelectedRow else { return }
@@ -114,6 +132,8 @@ final class TaskListViewController: UITableViewController {
           taskLists = taskLists.sorted(byKeyPath: "title")
         }
         tableView.reloadData()
+        
+        
     }
     
     @objc private func  addButtonPressed() {
