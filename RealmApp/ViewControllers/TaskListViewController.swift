@@ -48,7 +48,7 @@ final class TaskListViewController: UITableViewController {
         var content = cell.defaultContentConfiguration()
         let taskList = taskLists[indexPath.row]
         
-        var completedTasks: [Any] = []
+        var completedTasks: [Task] = []
         
         taskList.tasks.forEach { completedTask in
             if completedTask.isComplete {
@@ -73,6 +73,9 @@ final class TaskListViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        tableView.reloadRows(at: [indexPath], with: .automatic)
+        
         cell.alpha = 0
         
         UIView.animate(
@@ -129,14 +132,14 @@ final class TaskListViewController: UITableViewController {
         case 0:
             taskLists = taskLists.sorted(byKeyPath: "date")
         default:
-          taskLists = taskLists.sorted(byKeyPath: "title")
+            taskLists = taskLists.sorted(byKeyPath: "title")
         }
         tableView.reloadData()
         
         
     }
     
-    @objc private func  addButtonPressed() {
+    @objc private func addButtonPressed() {
         showAlert()
     }
 }
